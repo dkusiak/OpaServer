@@ -35,9 +35,7 @@ public class Server {
                         Socket socket = serverSocket.accept();
                         fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         toClient = new DataOutputStream(socket.getOutputStream());
-                        System.out.println("test1");
                         String[] loginData = fromClient.readLine().split(":");
-                        System.out.println(loginData[0] + loginData[1] + loginData[2]);
                         if(loginData[0].equals("LOGIN")) {
                             if (verifyUser(loginData[1], loginData[2])) {
                                 toClient.writeBytes("OK\n");
