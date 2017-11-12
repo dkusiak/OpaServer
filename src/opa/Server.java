@@ -38,7 +38,11 @@ public class Server {
                         String[] loginData = fromClient.readLine().split(":");
 
                         if(loginData[0].equals("LOGIN"))
-                            verifyUser(loginData[1], loginData[2]);
+                            if(verifyUser(loginData[1], loginData[2])){
+                                toClient.writeBytes("OK");
+                            } else{
+                                toClient.writeBytes("ERROR");
+                            }
                     }
 
                 } catch (IOException e) {e.printStackTrace();}
@@ -48,14 +52,14 @@ public class Server {
     }
 
 
-    private static void verifyUser(String username, String password) throws IOException {
+    private static boolean verifyUser(String username, String password) throws IOException {
 
         if(new File(username).exists()){
             if(new File(username + "//password.txt").exists()){
 
                 try(BufferedReader reader = new BufferedReader(new FileReader(new File(username + "//password.txt")))){
                     if(reader.readLine().trim().equals(password)) {
-                        toClient.writeBytes("OK");
+                        return true;
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -64,9 +68,7 @@ public class Server {
 
             }
         }
-        else{
-            toClient.writeBytes("ERROR");
-        }
+        return false;
     }
 
     private static void loadConnectionParams() throws IOException {
@@ -75,6 +77,7 @@ public class Server {
         setPort(Integer.valueOf(bufferedReader.readLine().split("=")[1]));
         fileReader.close();
     }
+
 
     public static void setPort(Integer port) { serverPort = port; }
     public static int getPort() { return serverPort; }
