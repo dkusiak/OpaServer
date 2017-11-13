@@ -1,12 +1,6 @@
 package opa;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -29,26 +23,52 @@ public class Server {
             public void run() {
                 try {
                     ServerSocket serverSocket = new ServerSocket(serverPort);
+                    System.out.println("SERVER RUNNING on port: " + serverPort);
+                    Socket socket = serverSocket.accept();
+                    fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    toClient = new DataOutputStream(socket.getOutputStream());
 
                     while(true){
-                        System.out.println("SERVER RUNNING on port: " + serverPort);
-                        Socket socket = serverSocket.accept();
-                        fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        toClient = new DataOutputStream(socket.getOutputStream());
-                        String[] loginData = fromClient.readLine().split(":");
-                        if(loginData[0].equals("LOGIN")) {
-                            if (verifyUser(loginData[1], loginData[2])) {
+
+                        String[] userData = fromClient.readLine().split(":");
+                        if(userData[0].equals("LOGIN")) {
+                            if (verifyUser(userData[1], userData[2])) {
                                 toClient.writeBytes("OK\n");
                             } else {
                                 toClient.writeBytes("ERROR\n");
                             }
                         }
+                        if(userData[0].equals("REGISTER")){
+                            if(addNewUser(userData[1],userData[2])){
+                                System.out.println("OK");
+                                toClient.writeBytes("OK\n");
+                            }
+                            else {
+                                toClient.writeBytes("ERROR\n");
+                            }
+                        }
+
                     }
 
                 } catch (IOException e) {e.printStackTrace();}
             }
         });
         thread.start();
+    }
+
+    private static boolean addNewUser(String username, String password) {
+
+        try {
+            File file = new File(username + "//password.txt");
+            file.getParentFile().mkdir();
+            file.createNewFile();
+            DataOutputStream toFile = new DataOutputStream(new FileOutputStream(file));
+            toFile.writeBytes(password);
+        } catch (IOException e) {
+            System.out.println("error");
+        }
+
+        return true;
     }
 
 
