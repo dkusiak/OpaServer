@@ -33,6 +33,7 @@ public class Server implements Runnable {
                     if (verifyUser(userData[1], userData[2])) {
                         toClient.writeBytes("OK\n");
                         connectedUserList.put(currentUserId, new ConnectedUser(currentUserId, socket, toClient, fromClient));
+                        System.out.println("Połączono klienta, nadano ID: " + currentUserId);
                         currentUserId++;
                     } else {
                         toClient.writeBytes("ERROR\n");

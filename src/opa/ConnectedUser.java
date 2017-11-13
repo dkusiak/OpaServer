@@ -31,7 +31,7 @@ public class ConnectedUser implements Runnable {
             } catch (IOException e) {
                 isConnected = false;
                 disconnectClient();
-                e.printStackTrace();
+                System.out.println("Rozłączono klienta o ID: " + id);
             }
         }
     }
