@@ -1,8 +1,11 @@
 package opa;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,7 +81,7 @@ public class Server implements Runnable {
             if (new File("users/" + username + "//password.txt").exists()) {
 
                 try (BufferedReader reader = new BufferedReader(new FileReader(new File("users/" + username + "//password.txt")))) {
-                    if (reader.readLine().trim().equals(password)) {
+                    if (reader.readLine().trim().equals(hashMD5(password))) {
                         return true;
                     }
                 } catch (FileNotFoundException e) {
@@ -90,5 +93,20 @@ public class Server implements Runnable {
             }
         }
         return false;
+    }
+
+    private static String hashMD5(String password){
+
+        String md5 = null;
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(password.getBytes(), 0, password.length());
+            md5 = new BigInteger(1, digest.digest()).toString(16);
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return md5;
     }
 }
