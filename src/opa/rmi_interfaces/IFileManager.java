@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import opa.archived_file.ArchivedFile;
 import opa.archived_file.ArchivedFileVersion;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -12,6 +13,6 @@ import java.util.ArrayList;
 
 public interface IFileManager extends Remote {
     boolean uploadFile(String username, String filename, String localPath, RemoteInputStream remoteInputStream) throws IOException;
-    byte[] downloadFile(ArchivedFileVersion archivedFileVersion) throws RemoteException;
+    RemoteInputStream downloadFile(ArchivedFileVersion archivedFileVersion) throws IOException;
     ArrayList<ArchivedFile> getArchivedFiles(String username) throws RemoteException;
 }

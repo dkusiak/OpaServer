@@ -1,7 +1,6 @@
 package opa;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import com.healthmarketscience.rmiio.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.shape.Arc;
@@ -54,6 +53,27 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         return true;
     }
 
+    @Override
+    public RemoteInputStream downloadFile(ArchivedFileVersion archivedFileVersion) throws IOException {
+        // create a RemoteStreamServer (note the finally block which only releases
+        // the RMI resources if the method fails before returning.)
+        RemoteInputStreamServer istream = null;
+        try {
+            istream = new GZIPRemoteInputStream(new BufferedInputStream(
+                    new FileInputStream(archivedFileVersion.getFilePath())));
+            // export the final stream for returning to the client
+            RemoteInputStream result = istream.export();
+            // after all the hard work, discard the local reference (we are passing
+            // responsibility to the client)
+            istream = null;
+            return result;
+        } finally {
+            // we will only close the stream here if the server fails before
+            // returning an exported stream
+            if(istream != null) istream.close();
+        }
+    }
+
     private String getFileNameWithoutExtension(String filename) {
         return filename.replaceFirst("[.][^.]+$", "");
     }
@@ -92,11 +112,6 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
     }
 
     @Override
-    public byte[] downloadFile(ArchivedFileVersion archivedFileVersion) {
-        return new byte[0];
-    }
-
-    @Override
     public ArrayList<ArchivedFile> getArchivedFiles(String username) {
         ArrayList<ArchivedFile> observableList = new ArrayList<>();
         String path = "users//" + username;
@@ -118,7 +133,7 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                ArchivedFileVersion archivedFileVersion = new ArchivedFileVersion(fileVersion.getPath(), attributes.lastModifiedTime().toString());
+                ArchivedFileVersion archivedFileVersion = new ArchivedFileVersion(fileVersion.getPath(), directory.getName(), attributes.lastModifiedTime().toString());
                 archivedFileVersions.add(archivedFileVersion);
             }
 
