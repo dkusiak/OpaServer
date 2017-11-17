@@ -29,7 +29,8 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         try {
             istream = RemoteInputStreamClient.wrap(remoteInputStream);
             File directory = findOrCreateDirectory(username, filename, localPath);
-            File file = createTempFile(filename, directory);
+            File file = File.createTempFile(getFileNameWithoutExtension(filename), "." + getFileExtension(filename), directory);
+                    //createTempFile(filename, directory);
             ostream = new FileOutputStream(file);
             System.out.println("Writing file " + file);
 
@@ -51,6 +52,18 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         }
 
         return true;
+    }
+
+    private String getFileNameWithoutExtension(String filename) {
+        return filename.replaceFirst("[.][^.]+$", "");
+    }
+
+    private String getFileExtension(String filename) {
+       String[] file = filename.split("\\.");
+       if(file[file.length - 1] != null)
+           return file[file.length - 1];
+
+       return "";
     }
 
     private File createTempFile(String filename, File directory) throws IOException {
