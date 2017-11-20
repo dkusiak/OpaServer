@@ -12,7 +12,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public interface IFileManager extends Remote {
-    boolean uploadFile(String username, String filename, String localPath, RemoteInputStream remoteInputStream) throws IOException;
+    boolean uploadFile(String username, String filename, String localPath, RemoteInputStream remoteInputStream, String modified) throws IOException;
     RemoteInputStream downloadFile(ArchivedFileVersion archivedFileVersion) throws IOException;
     ArrayList<ArchivedFile> getArchivedFiles(String username) throws RemoteException;
+    String checkLastModified(String username, String filename) throws RemoteException;
 }
