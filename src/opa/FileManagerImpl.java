@@ -162,7 +162,7 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         File modifiedTxtFile = new File(path);
         if (!modifiedTxtFile.exists())
             return lastModified;
-        try (BufferedReader reader =  new BufferedReader(new FileReader(new File(modifiedTxtFile.getAbsolutePath())))){
+        try (BufferedReader reader =  new BufferedReader(new FileReader(modifiedTxtFile))){
             lastModified = reader.readLine().trim();
         } catch (IOException e) {
             System.out.println("Error loading file");
