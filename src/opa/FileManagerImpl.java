@@ -34,7 +34,7 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
             File file = File.createTempFile(getFileNameWithoutExtension(filename), "." + getFileExtension(filename), directory);
                     //createTempFile(filename, directory);
             ostream = new FileOutputStream(file);
-            System.out.println("Writing file " + file);
+            System.out.println("Zapisywanie pliku: " + file);
 
             byte[] buf = new byte[1024];
 
@@ -44,7 +44,7 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
             }
             ostream.flush();
 
-            System.out.println("Finished writing file " + file);
+            System.out.println("Zakonczono zapisywanie pliku: " + file);
 
             istream.close();
             ostream.close();
@@ -184,7 +184,7 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         try (BufferedReader readInfo =  new BufferedReader(new FileReader(modifiedTxtFile))){
             lastModified = readInfo.readLine().trim();
         } catch (IOException e) {
-            System.out.println("Error loading file");
+            System.out.println("Blad ladowania pliku");
         }
         return lastModified;
     }
