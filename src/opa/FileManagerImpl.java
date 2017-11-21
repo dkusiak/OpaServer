@@ -27,7 +27,10 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
 
         try {
             istream = RemoteInputStreamClient.wrap(remoteInputStream);
-            File directory = findOrCreateDirectory(username, filename, localPath, modified);
+            File directory = findOrCreateDirectory(username, filename, localPath);
+
+            saveModifiedDateToFile(username, filename, modified);
+
             File file = File.createTempFile(getFileNameWithoutExtension(filename), "." + getFileExtension(filename), directory);
                     //createTempFile(filename, directory);
             ostream = new FileOutputStream(file);
@@ -92,7 +95,7 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         return file;
     }
 
-    private File findOrCreateDirectory(String username, String filename, String localPath, String modified) throws IOException {
+    private File findOrCreateDirectory(String username, String filename, String localPath) throws IOException {
         String path = "users//" + username + "//" + filename;
         File directory = new File(path);
         if (directory.exists())
@@ -110,12 +113,28 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         toFile.writeBytes(localPath);
         toFile.close();
 
-        File modifiedFileTxt = new File(path + "//modified.txt");
-        toFile = new DataOutputStream(new FileOutputStream(modifiedFileTxt));
-        toFile.writeBytes(modified);
-        toFile.close();
-
         return directory;
+    }
+
+    public void saveModifiedDateToFile(String username, String filename, String modified){
+        String path = "users//" + username + "//" + filename;
+        File modifiedFileTxt = new File(path + "//modified.txt");
+        if(modifiedFileTxt.exists()){
+            try {
+                PrintWriter writer = new PrintWriter(modifiedFileTxt);
+                writer.print("");
+                writer.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+            try {
+                DataOutputStream toFile = new DataOutputStream(new FileOutputStream(modifiedFileTxt));
+                toFile.writeBytes(modified);
+                toFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
@@ -162,12 +181,20 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
         File modifiedTxtFile = new File(path);
         if (!modifiedTxtFile.exists())
             return lastModified;
-        try (BufferedReader reader =  new BufferedReader(new FileReader(modifiedTxtFile))){
-            lastModified = reader.readLine().trim();
+        try (BufferedReader readInfo =  new BufferedReader(new FileReader(modifiedTxtFile))){
+            lastModified = readInfo.readLine().trim();
         } catch (IOException e) {
             System.out.println("Error loading file");
         }
         return lastModified;
+    }
+
+    @Override
+    public long checkFileSize(String filePath) throws RemoteException{
+        long size;
+        File file = new File(filePath);
+        size = file.length();
+        return size;
     }
 
     private String getFilePathClientSide(String filePath) throws IOException {
