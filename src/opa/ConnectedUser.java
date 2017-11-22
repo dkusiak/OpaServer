@@ -27,7 +27,6 @@ public class ConnectedUser implements Runnable {
         while (isConnected) {
             try {
                 String userData = fromClient.readLine();
-                //Todo logika polaczenia z konkretnym klientem
             } catch (IOException e) {
                 isConnected = false;
                 disconnectClient();

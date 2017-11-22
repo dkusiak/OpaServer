@@ -1,9 +1,6 @@
 package opa;
 
 import com.healthmarketscience.rmiio.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.shape.Arc;
 import opa.archived_file.ArchivedFile;
 import opa.archived_file.ArchivedFileVersion;
 import opa.rmi_interfaces.IFileManager;
@@ -75,6 +72,37 @@ public class FileManagerImpl extends UnicastRemoteObject implements IFileManager
             // returning an exported stream
             if(istream != null) istream.close();
         }
+    }
+
+    public boolean changeArchivedState(String username, ArchivedFile archivedFile) throws RemoteException{
+        try {
+            String path = "users//" + username + "//" + archivedFile.getFileName();
+            if(checkIfArchivingIsEnabled(path)){
+                File params = new File(path + "//active.txt");
+                PrintWriter writer = new PrintWriter(params);
+                writer.print("");
+                writer.flush();
+                writer.close();
+                DataOutputStream toFile = new DataOutputStream(new FileOutputStream(params));
+                toFile.writeBytes("2");
+                toFile.flush();
+                toFile.close();
+                return false;
+            } else {
+                File params = new File(path + "//active.txt");
+                PrintWriter writer = new PrintWriter(params);
+                writer.print("");
+                writer.flush();
+                writer.close();
+                DataOutputStream toFile = new DataOutputStream(new FileOutputStream(params));
+                toFile.writeBytes("1");
+                toFile.flush();
+                toFile.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     private String getFileNameWithoutExtension(String filename) {

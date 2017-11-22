@@ -17,4 +17,5 @@ public interface IFileManager extends Remote {
     ArrayList<ArchivedFile> getArchivedFiles(String username) throws RemoteException;
     String checkLastModified(String username, String filename) throws RemoteException;
     long checkFileSize(String filePath) throws RemoteException;
+    boolean changeArchivedState(String username, ArchivedFile archivedFile) throws RemoteException;
 }
